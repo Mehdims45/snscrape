@@ -1,17 +1,12 @@
-import pkgutil
-
-
-__all__ = []
-
+import importlib
+import os
 
 def _import_modules():
-	prefixLen = len(__name__) + 1
-	for importer, moduleName, isPkg in pkgutil.iter_modules(__path__, prefix = f'{__name__}.'):
-		assert not isPkg
-		moduleNameWithoutPrefix = moduleName[prefixLen:]
-		__all__.append(moduleNameWithoutPrefix)
-		module = importer.find_module(moduleName).load_module(moduleName)
-		globals()[moduleNameWithoutPrefix] = module
-
+    for moduleName in sorted(
+        os.path.splitext(filename)[0]
+        for filename in os.listdir(os.path.dirname(__file__))
+        if filename.endswith('.py') and filename not in ('__init__.py',)
+    ):
+        importlib.import_module(f'.{moduleName}', 'snscrape.modules')
 
 _import_modules()
